@@ -713,6 +713,16 @@
                 }, 3000);
             }
 
+            // Function to reset all pages to hidden and show the initial page
+            function resetToInitialPage() {
+                initialPage.style.display = 'block';
+                detailSurveyPage.style.display = 'none';
+                adminLoginPage.style.display = 'none';
+                adminDashboardPage.style.display = 'none';
+                emojiOptions.forEach(opt => opt.classList.remove('selected')); // Clear selected emoji
+                selectedInitialRating = null; // Reset selected initial rating
+            }
+
             function renderMotivatorOptions() {
                 motivatorOptionsContainer.innerHTML = '';
                 motivatorOptions.forEach(option => {
@@ -921,6 +931,7 @@
 
 
             // --- Initial Setup ---
+            resetToInitialPage(); // Call this function on page load to ensure initial state
             renderMotivatorOptions();
 
             // --- Event Listeners ---
@@ -1045,9 +1056,7 @@
 
                 // Volta para a página inicial após o envio
                 setTimeout(() => {
-                    detailSurveyPage.style.display = 'none';
-                    initialPage.style.display = 'block';
-                    emojiOptions.forEach(opt => opt.classList.remove('selected'));
+                    resetToInitialPage(); // Use a função de reset
                 }, 3000);
             });
 
