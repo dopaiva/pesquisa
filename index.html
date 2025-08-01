@@ -11,7 +11,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Adicionado 'where' aqui
+        import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase (will be populated by Canvas environment)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -35,7 +35,7 @@
         window.collection = collection;
         window.onSnapshot = onSnapshot;
         window.query = query;
-        window.where = where; // Exportar 'where' também
+        window.where = where;
         window.signInWithCustomToken = signInWithCustomToken;
     </script>
     <style>
@@ -324,6 +324,47 @@
         .floating-button.whatsapp:hover {
             background-color: #1DA851;
         }
+
+        /* Estilos para gráficos de barra */
+        .chart-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .chart-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .chart-bar-label {
+            width: 120px; /* Largura fixa para rótulos */
+            font-size: 0.875rem;
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+        .chart-bar-bg {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        .chart-bar-fill {
+            height: 100%;
+            background-color: #3b82f6; /* Cor da barra */
+            border-radius: 0.25rem;
+            transition: width 0.5s ease-out;
+        }
+        .chart-bar-value {
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
     </style>
 </head>
 <body>
@@ -363,20 +404,12 @@
                     <p class="text-sm font-medium text-gray-700 mt-2">Péssimo</p>
                 </div>
             </div>
-            <!-- O botão "Continuar para a Pesquisa" foi removido daqui -->
         </div>
 
-        <!-- Página da Pesquisa de NPS (inicialmente escondida) -->
-        <div id="npsPage" style="display: none;">
-            <!-- Estrelas conforme a imagem -->
-            <div class="flex justify-center mb-4">
-                <span class="star-icon">★</span>
-                <span class="star-icon">★</span>
-                <span class="star-icon">★</span>
-            </div>
-
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Pesquisa de Satisfação</h1>
-            <p class="text-gray-600 mb-8">Estamos abertos a ouvir sua opinião e sempre buscar melhorias em nossos serviços. Participe!</p>
+        <!-- Página de Detalhes da Pesquisa (inicialmente escondida) -->
+        <div id="detailSurveyPage" style="display: none;">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Detalhes da Sua Experiência</h1>
+            <p class="text-gray-600 mb-8">Conte-nos mais sobre sua experiência para nos ajudar a melhorar.</p>
 
             <!-- 1. Sua necessidade foi resolvida? -->
             <div class="mb-6 text-left">
@@ -408,22 +441,38 @@
                 </div>
             </div>
 
-            <!-- 3. Em uma escala de 0 a 10, qual a probabilidade de você recomendar nosso serviço a um amigo ou colega? (NPS) -->
+            <!-- Nova Pergunta: Faixa Etária -->
             <div class="mb-6 text-left">
-                <p class="text-gray-700 text-lg font-medium mb-3">3. Em uma escala de 0 a 10, qual a probabilidade de você recomendar nosso serviço a um amigo ou colega?</p>
-                <div class="nps-scale">
-                    <!-- Scores 0-10 -->
-                    <div class="nps-score-option" data-score="0">0</div>
-                    <div class="nps-score-option" data-score="1">1</div>
-                    <div class="nps-score-option" data-score="2">2</div>
-                    <div class="nps-score-option" data-score="3">3</div>
-                    <div class="nps-score-option" data-score="4">4</div>
-                    <div class="nps-score-option" data-score="5">5</div>
-                    <div class="nps-score-option" data-score="6">6</div>
-                    <div class="nps-score-option" data-score="7">7</div>
-                    <div class="nps-score-option" data-score="8">8</div>
-                    <div class="nps-score-option" data-score="9">9</div>
-                    <div class="nps-score-option" data-score="10">10</div>
+                <p class="text-gray-700 text-lg font-medium mb-3">3. Qual a sua faixa etária?</p>
+                <div class="radio-group justify-start">
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="Menos de 18" class="form-radio">
+                        Menos de 18
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="18-24" class="form-radio">
+                        18-24
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="25-34" class="form-radio">
+                        25-34
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="35-44" class="form-radio">
+                        35-44
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="45-54" class="form-radio">
+                        45-54
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="55-64" class="form-radio">
+                        55-64
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ageRange" value="65 ou mais" class="form-radio">
+                        65 ou mais
+                    </label>
                 </div>
             </div>
 
@@ -463,8 +512,8 @@
                 <textarea id="comments" rows="5" class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Seu comentário aqui..."></textarea>
             </div>
 
-            <button id="submitBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300">
-                <span class="mr-2">✉️</span> Enviar Resposta
+            <button id="submitDetailSurveyBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300">
+                <span class="mr-2">✉️</span> Concluir Pesquisa
             </button>
         </div>
 
@@ -506,6 +555,22 @@
                 </div>
             </div>
 
+            <!-- Novos Gráficos -->
+            <div class="chart-container">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Distribuição de Avaliações Iniciais</h3>
+                <div id="initialRatingChart"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Distribuição por Ponto Motivador</h3>
+                <div id="motivatorChart"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Distribuição por Faixa Etária</h3>
+                <div id="ageRangeChart"></div>
+            </div>
+
             <!-- Base de Feedbacks Section for Admin -->
             <div>
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Base de Feedbacks</h2>
@@ -523,11 +588,12 @@
                                 <th>Nota NPS</th>
                                 <th>Motivador</th>
                                 <th>Comentário</th>
+                                <th>Faixa Etária</th>
                             </tr>
                         </thead>
                         <tbody id="surveyResultsBody">
                             <!-- Dados da pesquisa serão carregados aqui -->
-                            <tr><td colspan="8" class="text-center text-gray-500">Carregando dados...</td></tr>
+                            <tr><td colspan="9" class="text-center text-gray-500">Carregando dados...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -569,20 +635,18 @@
             const collection = window.collection;
             const onSnapshot = window.onSnapshot;
             const query = window.query;
-            const where = window.where; // Importado 'where'
+            const where = window.where;
             const signInWithCustomToken = window.signInWithCustomToken;
 
             // UI Elements
             const initialPage = document.getElementById('initialPage');
-            const npsPage = document.getElementById('npsPage');
+            const detailSurveyPage = document.getElementById('detailSurveyPage'); // Nova página de detalhes
             const adminLoginPage = document.getElementById('adminLoginPage');
             const adminDashboardPage = document.getElementById('adminDashboardPage');
 
             const emojiOptions = document.querySelectorAll('.emoji-option');
-            // const continueBtn = document.getElementById('continueBtn'); // Removido
-            const goToAdminBtnFloating = document.getElementById('goToAdminBtnFloating'); // Novo botão flutuante
-            const npsScoreOptions = document.querySelectorAll('.nps-score-option');
-            const submitBtn = document.getElementById('submitBtn');
+            const goToAdminBtnFloating = document.getElementById('goToAdminBtnFloating');
+            const submitDetailSurveyBtn = document.getElementById('submitDetailSurveyBtn'); // Botão de envio da página de detalhes
             const commentsTextArea = document.getElementById('comments');
             const messageBox = document.getElementById('messageBox');
 
@@ -603,16 +667,20 @@
             const backToInitialFromAdminLogin = document.getElementById('backToInitialFromAdminLogin');
             const backToInitialFromAdminDashboard = document.getElementById('backToInitialFromAdminDashboard');
 
+            // Chart containers
+            const initialRatingChartContainer = document.getElementById('initialRatingChart');
+            const motivatorChartContainer = document.getElementById('motivatorChart');
+            const ageRangeChartContainer = document.getElementById('ageRangeChart');
+
 
             // State variables
             let selectedInitialRating = null;
-            let selectedNPSScore = null;
+            let selectedNPSScore = null; // NPS Score will be derived from initial rating for storage
             let motivatorOptions = JSON.parse(localStorage.getItem('motivatorOptions')) || ["Atendimento", "Comunicação", "Cumprimento de prazos", "Transparência"];
             let currentUserId = null;
             let isAuthReady = false;
 
             // --- Firebase Authentication ---
-            // Sign in anonymously for general survey users
             if (initialAuthToken) {
                 await signInWithCustomToken(auth, initialAuthToken);
             } else {
@@ -631,7 +699,6 @@
             });
 
             // --- Utility Functions ---
-            // Função para exibir mensagem (sucesso/erro)
             function showMessage(message, isError = false) {
                 messageBox.textContent = message;
                 messageBox.classList.remove('bg-green-500', 'bg-red-500');
@@ -646,9 +713,8 @@
                 }, 3000);
             }
 
-            // Função para renderizar as opções de motivadores
             function renderMotivatorOptions() {
-                motivatorOptionsContainer.innerHTML = ''; // Limpa as opções existentes
+                motivatorOptionsContainer.innerHTML = '';
                 motivatorOptions.forEach(option => {
                     const label = document.createElement('label');
                     label.className = 'radio-option';
@@ -660,7 +726,6 @@
                 });
             }
 
-            // Função para renderizar as opções de motivadores na seção de edição
             function renderEditMotivatorOptions() {
                 currentMotivatorOptionsDiv.innerHTML = '';
                 if (motivatorOptions.length === 0) {
@@ -677,44 +742,65 @@
                     currentMotivatorOptionsDiv.appendChild(div);
                 });
 
-                // Adiciona listeners para os botões de remover
                 document.querySelectorAll('.remove-motivator-btn').forEach(button => {
                     button.addEventListener('click', (event) => {
                         const index = parseInt(event.target.dataset.index);
                         motivatorOptions.splice(index, 1);
-                        renderEditMotivatorOptions(); // Re-renderiza a lista de edição
-                        renderMotivatorOptions(); // Re-renderiza a lista principal
+                        renderEditMotivatorOptions();
+                        renderMotivatorOptions();
                         localStorage.setItem('motivatorOptions', JSON.stringify(motivatorOptions));
                     });
                 });
             }
 
-            // Função para atualizar o medidor de NPS no painel admin
             function updateNPSGauge(score) {
-                // Clamp score between -100 and 100
                 score = Math.max(-100, Math.min(100, score));
-
-                // Calculate position (0% for -100, 100% for 100)
-                const position = ((score + 100) / 200) * 100; // Convert to percentage
+                const position = ((score + 100) / 200) * 100;
 
                 adminNpsPointer.style.left = `${position}%`;
                 adminNpsPointer.textContent = score;
                 adminNpsScoreDisplay.textContent = score;
             }
 
-            // Função para carregar e exibir os dados da pesquisa
-            function loadSurveyData(period = 'all') {
-                if (!isAuthReady) {
-                    console.log("Autenticação não pronta, tentando novamente em breve...");
-                    setTimeout(() => loadSurveyData(period), 500); // Retry after 500ms
+            // Função para renderizar gráficos de barra
+            function renderBarChart(container, data, title) {
+                container.innerHTML = ''; // Limpa o gráfico existente
+                const total = Object.values(data).reduce((sum, count) => sum + count, 0);
+
+                if (total === 0) {
+                    container.innerHTML = `<p class="text-gray-500 text-center">Nenhum dado para ${title}.</p>`;
                     return;
                 }
 
-                surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500">Carregando dados...</td></tr>';
+                for (const label in data) {
+                    const count = data[label];
+                    const percentage = total > 0 ? (count / total) * 100 : 0;
+
+                    const item = document.createElement('div');
+                    item.className = 'chart-bar-item';
+                    item.innerHTML = `
+                        <span class="chart-bar-label">${label}</span>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: ${percentage.toFixed(1)}%;"></div>
+                        </div>
+                        <span class="chart-bar-value">${count} (${percentage.toFixed(1)}%)</span>
+                    `;
+                    container.appendChild(item);
+                }
+            }
+
+
+            function loadSurveyData(period = 'all') {
+                if (!isAuthReady) {
+                    console.log("Autenticação não pronta, tentando novamente em breve...");
+                    setTimeout(() => loadSurveyData(period), 500);
+                    return;
+                }
+
+                surveyResultsBody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500">Carregando dados...</td></tr>';
                 try {
                     let q = collection(db, `/artifacts/${appId}/public/data/surveyResponses`);
 
-                    // Filter by period
                     if (period === '7days') {
                         const sevenDaysAgo = new Date();
                         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -725,23 +811,30 @@
                         q = query(q, where('timestamp', '>=', thirtyDaysAgo));
                     }
 
-                    // Using onSnapshot for real-time updates
                     onSnapshot(q, (snapshot) => {
-                        surveyResultsBody.innerHTML = ''; // Clear existing data
+                        surveyResultsBody.innerHTML = '';
                         const feedbacks = [];
                         let promoters = 0;
                         let detractors = 0;
                         let totalResponses = 0;
 
+                        const initialRatingCounts = {};
+                        const motivatorCounts = {};
+                        const ageRangeCounts = {};
+
                         if (snapshot.empty) {
-                            surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500">Nenhum dado de pesquisa encontrado.</td></tr>';
-                            updateNPSGauge(0); // Reset NPS if no data
+                            surveyResultsBody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500">Nenhum dado de pesquisa encontrado.</td></tr>';
+                            updateNPSGauge(0);
+                            renderBarChart(initialRatingChartContainer, {}, 'Avaliações Iniciais');
+                            renderBarChart(motivatorChartContainer, {}, 'Pontos Motivadores');
+                            renderBarChart(ageRangeChartContainer, {}, 'Faixas Etárias');
                             return;
                         }
+
                         snapshot.forEach((doc) => {
                             const data = doc.data();
                             feedbacks.push({
-                                id: doc.id, // Include document ID for potential future use
+                                id: doc.id,
                                 date: data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A',
                                 userId: data.userId || 'N/A',
                                 initialRating: data.initialRating || 'N/A',
@@ -749,18 +842,39 @@
                                 type: data.tipoRetorno || 'N/A',
                                 npsScore: data.npsScore !== undefined ? data.npsScore : 'N/A',
                                 motivator: data.pontoMotivador || 'N/A',
-                                comment: data.comments || 'N/A'
+                                comment: data.comments || 'N/A',
+                                ageRange: data.ageRange || 'N/A'
                             });
 
-                            // Calculate NPS
-                            if (data.npsScore !== undefined) {
-                                if (data.npsScore >= 9) {
-                                    promoters++;
-                                } else if (data.npsScore <= 6) {
-                                    detractors++;
-                                }
-                                totalResponses++;
+                            // Populate data for charts
+                            if (data.initialRating) {
+                                initialRatingCounts[data.initialRating] = (initialRatingCounts[data.initialRating] || 0) + 1;
                             }
+                            if (data.pontoMotivador) {
+                                motivatorCounts[data.pontoMotivador] = (motivatorCounts[data.pontoMotivador] || 0) + 1;
+                            }
+                            if (data.ageRange) {
+                                ageRangeCounts[data.ageRange] = (ageRangeCounts[data.ageRange] || 0) + 1;
+                            }
+
+                            // Calculate NPS (using the 0-10 scale from the detailed survey if present, or deriving from initial rating)
+                            // For this project, NPS is calculated from the initial emoji rating mapping
+                            let npsScoreFromEmoji = 0;
+                            switch(data.initialRating) {
+                                case 'Excelente': npsScoreFromEmoji = 10; break;
+                                case 'Bom': npsScoreFromEmoji = 8; break;
+                                case 'Regular': npsScoreFromEmoji = 6; break;
+                                case 'Ruim': npsScoreFromEmoji = 3; break;
+                                case 'Péssimo': npsScoreFromEmoji = 0; break;
+                                default: npsScoreFromEmoji = 0; // Default or handle N/A
+                            }
+
+                            if (npsScoreFromEmoji >= 9) {
+                                promoters++;
+                            } else if (npsScoreFromEmoji <= 6) {
+                                detractors++;
+                            }
+                            totalResponses++;
                         });
 
                         // Populate the table
@@ -775,6 +889,7 @@
                                 <td>${feedback.npsScore}</td>
                                 <td>${feedback.motivator}</td>
                                 <td>${feedback.comment}</td>
+                                <td>${feedback.ageRange}</td>
                             `;
                             surveyResultsBody.appendChild(row);
                         });
@@ -784,75 +899,66 @@
                             const nps = ((promoters - detractors) / totalResponses) * 100;
                             updateNPSGauge(Math.round(nps));
                         } else {
-                            updateNPSGauge(0); // No data, NPS is 0
+                            updateNPSGauge(0);
                         }
+
+                        // Render charts
+                        renderBarChart(initialRatingChartContainer, initialRatingCounts, 'Avaliações Iniciais');
+                        renderBarChart(motivatorChartContainer, motivatorCounts, 'Pontos Motivadores');
+                        renderBarChart(ageRangeChartContainer, ageRangeCounts, 'Faixas Etárias');
 
                     }, (error) => {
                         console.error("Erro ao carregar dados do Firestore:", error);
-                        surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500">Erro ao carregar dados.</td></tr>';
+                        surveyResultsBody.innerHTML = '<tr><td colspan="9" class="text-center text-red-500">Erro ao carregar dados.</td></tr>';
                         showMessage('Erro ao carregar dados do painel de administração.', true);
                     });
                 } catch (error) {
                     console.error("Erro ao configurar listener do Firestore:", error);
-                    surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500">Erro ao iniciar o carregamento de dados.</td></tr>';
+                    surveyResultsBody.innerHTML = '<tr><td colspan="9" class="text-center text-red-500">Erro ao iniciar o carregamento de dados.</td></tr>';
                     showMessage('Erro ao iniciar o carregamento de dados do painel de administração.', true);
                 }
             }
 
 
             // --- Initial Setup ---
-            renderMotivatorOptions(); // Carrega as opções de motivadores ao iniciar
+            renderMotivatorOptions();
 
             // --- Event Listeners ---
-            // Adiciona listener de clique para cada opção de emoji
             emojiOptions.forEach(option => {
                 option.addEventListener('click', () => {
                     emojiOptions.forEach(opt => opt.classList.remove('selected'));
                     option.classList.add('selected');
                     selectedInitialRating = option.dataset.value;
 
-                    // Navega diretamente para a página NPS ao clicar na carinha
+                    // Navega diretamente para a página de detalhes da pesquisa
                     initialPage.style.display = 'none';
-                    npsPage.style.display = 'block';
+                    detailSurveyPage.style.display = 'block';
                     console.log('Avaliação inicial selecionada:', selectedInitialRating);
                 });
             });
 
-            // O botão 'Continuar para a Pesquisa' foi removido, então seu listener também.
-
             // Adiciona listener de clique ao botão flutuante 'Acessar Painel Admin'
             goToAdminBtnFloating.addEventListener('click', () => {
                 initialPage.style.display = 'none';
-                npsPage.style.display = 'none'; // Certifica que a página NPS também está escondida
+                detailSurveyPage.style.display = 'none';
                 adminLoginPage.style.display = 'block';
-                adminPasswordInput.value = ''; // Limpa o campo da senha
+                adminPasswordInput.value = '';
             });
 
-            // Adiciona listener de clique ao botão 'Voltar' da página de login do admin
             backToInitialFromAdminLogin.addEventListener('click', () => {
                 adminLoginPage.style.display = 'none';
                 initialPage.style.display = 'block';
             });
 
-            // Adiciona listener de clique ao botão 'Voltar' do painel do admin
             backToInitialFromAdminDashboard.addEventListener('click', () => {
                 adminDashboardPage.style.display = 'none';
                 initialPage.style.display = 'block';
             });
 
-            // Adiciona listener de clique para cada opção de pontuação NPS
-            npsScoreOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    npsScoreOptions.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    selectedNPSScore = parseInt(option.dataset.score);
-                });
-            });
-
             // Lógica para o botão "Editar Opções"
             editMotivatorsBtn.addEventListener('click', () => {
                 editMotivatorsSection.classList.toggle('hidden');
-                renderEditMotivatorOptions(); // Renderiza as opções para edição
+                renderEditMotivatorOptions();
             });
 
             // Lógica para adicionar nova opção de motivador
@@ -861,8 +967,8 @@
                 if (newValue && !motivatorOptions.includes(newValue)) {
                     motivatorOptions.push(newValue);
                     newMotivatorInput.value = '';
-                    renderEditMotivatorOptions(); // Re-renderiza a lista de edição
-                    renderMotivatorOptions(); // Re-renderiza a lista principal
+                    renderEditMotivatorOptions();
+                    renderMotivatorOptions();
                     localStorage.setItem('motivatorOptions', JSON.stringify(motivatorOptions));
                 } else if (newValue && motivatorOptions.includes(newValue)) {
                     showMessage('Esta opção já existe.', true);
@@ -877,16 +983,28 @@
                 showMessage('Opções de motivadores salvas!', false);
             });
 
-            // Adiciona listener de clique ao botão 'Enviar Resposta' (da pesquisa NPS)
-            submitBtn.addEventListener('click', async () => {
+            // Adiciona listener de clique ao botão 'Concluir Pesquisa' (da página de detalhes)
+            submitDetailSurveyBtn.addEventListener('click', async () => {
                 const necessidadeResolvida = document.querySelector('input[name="necessidadeResolvida"]:checked')?.value;
                 const tipoRetorno = document.querySelector('input[name="tipoRetorno"]:checked')?.value;
                 const pontoMotivador = document.querySelector('input[name="pontoMotivador"]:checked')?.value;
+                const ageRange = document.querySelector('input[name="ageRange"]:checked')?.value; // Captura a faixa etária
                 const comments = commentsTextArea.value.trim();
 
-                if (selectedNPSScore === null || !necessidadeResolvida || !tipoRetorno || !pontoMotivador) {
+                if (!necessidadeResolvida || !tipoRetorno || !pontoMotivador || !ageRange) { // Valida a faixa etária
                     showMessage('Por favor, preencha todos os campos obrigatórios antes de enviar.', true);
                     return;
+                }
+
+                // Mapeia a avaliação inicial (carinha) para um NPS Score de 0-10 para armazenamento
+                let npsScoreDerived = 0;
+                switch(selectedInitialRating) {
+                    case 'Excelente': npsScoreDerived = 10; break;
+                    case 'Bom': npsScoreDerived = 8; break;
+                    case 'Regular': npsScoreDerived = 6; break;
+                    case 'Ruim': npsScoreDerived = 3; break;
+                    case 'Péssimo': npsScoreDerived = 0; break;
+                    default: npsScoreDerived = 0;
                 }
 
                 const surveyData = {
@@ -894,10 +1012,11 @@
                     initialRating: selectedInitialRating,
                     necessidadeResolvida: necessidadeResolvida,
                     tipoRetorno: tipoRetorno,
-                    npsScore: selectedNPSScore,
+                    npsScore: npsScoreDerived, // Usa o NPS derivado da carinha
                     pontoMotivador: pontoMotivador,
                     comments: comments,
-                    timestamp: new Date() // Adiciona um timestamp
+                    ageRange: ageRange, // Salva a faixa etária
+                    timestamp: new Date()
                 };
 
                 try {
@@ -916,33 +1035,34 @@
                     return;
                 }
 
-                // Reseta o formulário (opcional)
-                npsScoreOptions.forEach(opt => opt.classList.remove('selected'));
-                document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+                // Reseta o formulário
+                document.querySelectorAll('input[name="necessidadeResolvida"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="tipoRetorno"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="pontoMotivador"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="ageRange"]').forEach(radio => radio.checked = false); // Reseta faixa etária
                 commentsTextArea.value = '';
-                selectedNPSScore = null;
-                selectedInitialRating = null; // Reseta a seleção inicial também
+                selectedInitialRating = null;
 
-                // Opcional: Voltar para a página inicial após o envio
+                // Volta para a página inicial após o envio
                 setTimeout(() => {
-                    npsPage.style.display = 'none';
+                    detailSurveyPage.style.display = 'none';
                     initialPage.style.display = 'block';
-                    emojiOptions.forEach(opt => opt.classList.remove('selected')); // Limpa seleção de emoji
+                    emojiOptions.forEach(opt => opt.classList.remove('selected'));
                 }, 3000);
             });
 
             // Lógica de login do Admin
             adminLoginBtn.addEventListener('click', () => {
                 const password = adminPasswordInput.value;
-                const correctPassword = "123"; // Senha hardcoded
+                const correctPassword = "123";
 
                 if (password === correctPassword) {
                     adminLoginPage.style.display = 'none';
                     adminDashboardPage.style.display = 'block';
-                    loadSurveyData(npsPeriodSelect.value); // Carrega os dados da pesquisa com o período selecionado
+                    loadSurveyData(npsPeriodSelect.value);
                 } else {
                     showMessage('Senha incorreta. Tente novamente.', true);
-                    adminPasswordInput.value = ''; // Limpa o campo da senha
+                    adminPasswordInput.value = '';
                 }
             });
 
