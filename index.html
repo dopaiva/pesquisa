@@ -11,7 +11,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Adicionado 'where' aqui
 
         // Global variables for Firebase (will be populated by Canvas environment)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -35,6 +35,7 @@
         window.collection = collection;
         window.onSnapshot = onSnapshot;
         window.query = query;
+        window.where = where; // Exportar 'where' também
         window.signInWithCustomToken = signInWithCustomToken;
     </script>
     <style>
@@ -522,6 +523,7 @@
             const collection = window.collection;
             const onSnapshot = window.onSnapshot;
             const query = window.query;
+            const where = window.where; // Importado 'where'
             const signInWithCustomToken = window.signInWithCustomToken;
 
             // UI Elements
