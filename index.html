@@ -143,9 +143,6 @@
             transition: all 0.2s ease-in-out;
             font-weight: 600;
         }
-        .nps-score-option:hover {
-            background-color: #f3f4f6;
-        }
         .nps-score-option.selected {
             background-color: #3b82f6;
             color: white;
@@ -156,7 +153,7 @@
         /* Estilos e animações para elementos flutuantes */
         .floating-element {
             position: absolute;
-            opacity: 0.3;
+            opacity: 0.7; /* Mais visível */
             animation: float 10s ease-in-out infinite;
             z-index: 1;
         }
@@ -284,6 +281,49 @@
             font-size: 1.25rem;
             color: #4b5563;
         }
+
+        /* Estilos para botões flutuantes de ação */
+        .floating-action-buttons-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 50; /* Acima dos elementos flutuantes, mas abaixo das mensagens */
+        }
+        .floating-button {
+            width: 50px; /* Tamanho fixo para ser redondo */
+            height: 50px; /* Tamanho fixo para ser redondo */
+            border-radius: 50%; /* Faz o botão ser um círculo perfeito */
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Para o link do WhatsApp */
+            color: white;
+            font-size: 1.5rem; /* Tamanho maior para o ícone */
+        }
+        .floating-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .floating-button.admin {
+            background-color: #6b7280; /* Cinza escuro */
+            color: white;
+        }
+        .floating-button.admin:hover {
+            background-color: #4b5563;
+        }
+        .floating-button.whatsapp {
+            background-color: #25D366; /* Verde WhatsApp */
+            color: white;
+        }
+        .floating-button.whatsapp:hover {
+            background-color: #1DA851;
+        }
     </style>
 </head>
 <body>
@@ -323,13 +363,7 @@
                     <p class="text-sm font-medium text-gray-700 mt-2">Péssimo</p>
                 </div>
             </div>
-
-            <button id="continueBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
-                Continuar para a Pesquisa
-            </button>
-            <button id="goToAdminBtn" class="w-full mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-500">
-                Acessar Painel Admin
-            </button>
+            <!-- O botão "Continuar para a Pesquisa" foi removido daqui -->
         </div>
 
         <!-- Página da Pesquisa de NPS (inicialmente escondida) -->
@@ -504,6 +538,18 @@
         </div>
     </div>
 
+    <!-- Container para botões de ação flutuantes -->
+    <div class="floating-action-buttons-container">
+        <a id="whatsappBtn" href="https://wa.me/5581999513952" target="_blank" class="floating-button whatsapp">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12.04 2c-6.63 0-12 5.4-12 12 0 2.22.6 4.33 1.7 6.2l-1.6 5.8 6.1-1.6c1.88.98 3.96 1.5 6.1 1.5 6.63 0 12-5.4 12-12s-5.37-12-12-12zm0 2.8c5.02 0 9.1 4.08 9.1 9.1s-4.08 9.1-9.1 9.1c-1.63 0-3.15-.42-4.48-1.16l-.32-.18-3.4 1.1 1.1-3.35-.2-.33c-.76-1.3-1.16-2.8-1.16-4.48 0-5.02 4.08-9.1 9.1-9.1zm4.8 11.8c-.18.12-.4.2-.6.28-.2.08-.4.12-.6.12-.2 0-.4-.04-.6-.12-.2-.08-.4-.16-.6-.28-.18-.12-.32-.28-.42-.48-.1-.2-.16-.4-.16-.6s.06-.4.16-.6c.1-.2.24-.36.42-.48.18-.12.4-.2.6-.28.2-.08.4-.12.6-.12.2 0 .4.04.6.12.2.08.4.16.6.28.18.12.32.28.42.48.1.2.16.4.16.6s-.06.4-.16.6c-.1.2-.24.36-.42.48zM8.5 7.7c-.18-.12-.4-.2-.6-.28-.2-.08-.4-.12-.6-.12-.2 0-.4.04-.6.12-.2.08-.4.16-.6.28-.18.12-.32.28-.42-.48-.1-.2-.16-.4-.16-.6s.06-.4.16-.6c.1-.2.24-.36.42-.48.18-.12.4-.2.6-.28.2-.08.4-.12.6-.12.2 0 .4.04.6.12.2.08.4.16.6.28.18.12.32.28.42.48.1.2.16.4.16.6s-.06.4-.16.6c-.1.2-.24.36-.42.48zM12.04 4.8c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 1.8c1.48 0 2.7 1.22 2.7 2.7s-1.22 2.7-2.7 2.7-2.7-1.22-2.7-2.7 1.22-2.7 2.7-2.7z"/>
+            </svg>
+        </a>
+        <button id="goToAdminBtnFloating" class="floating-button admin">
+            ⚙️
+        </button>
+    </div>
+
     <!-- Message Box for confirmation/error -->
     <div id="messageBox" class="message-box">
         <!-- O conteúdo da mensagem será definido pelo JavaScript -->
@@ -533,8 +579,8 @@
             const adminDashboardPage = document.getElementById('adminDashboardPage');
 
             const emojiOptions = document.querySelectorAll('.emoji-option');
-            const continueBtn = document.getElementById('continueBtn');
-            const goToAdminBtn = document.getElementById('goToAdminBtn');
+            // const continueBtn = document.getElementById('continueBtn'); // Removido
+            const goToAdminBtnFloating = document.getElementById('goToAdminBtnFloating'); // Novo botão flutuante
             const npsScoreOptions = document.querySelectorAll('.nps-score-option');
             const submitBtn = document.getElementById('submitBtn');
             const commentsTextArea = document.getElementById('comments');
@@ -764,23 +810,20 @@
                     emojiOptions.forEach(opt => opt.classList.remove('selected'));
                     option.classList.add('selected');
                     selectedInitialRating = option.dataset.value;
-                });
-            });
 
-            // Adiciona listener de clique ao botão 'Continuar' (da página inicial para NPS)
-            continueBtn.addEventListener('click', () => {
-                if (selectedInitialRating) {
+                    // Navega diretamente para a página NPS ao clicar na carinha
                     initialPage.style.display = 'none';
                     npsPage.style.display = 'block';
                     console.log('Avaliação inicial selecionada:', selectedInitialRating);
-                } else {
-                    showMessage('Por favor, selecione uma opção antes de continuar.', true);
-                }
+                });
             });
 
-            // Adiciona listener de clique ao botão 'Acessar Painel Admin'
-            goToAdminBtn.addEventListener('click', () => {
+            // O botão 'Continuar para a Pesquisa' foi removido, então seu listener também.
+
+            // Adiciona listener de clique ao botão flutuante 'Acessar Painel Admin'
+            goToAdminBtnFloating.addEventListener('click', () => {
                 initialPage.style.display = 'none';
+                npsPage.style.display = 'none'; // Certifica que a página NPS também está escondida
                 adminLoginPage.style.display = 'block';
                 adminPasswordInput.value = ''; // Limpa o campo da senha
             });
