@@ -6,7 +6,7 @@
     <title>Pesquisa de Satisfação para Treinamento/Palestra</title>
     <!-- Incluindo Tailwind CSS para estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -128,6 +128,24 @@
             transform: scale(1.1); /* Slight enlarge on select */
         }
 
+        /* New NPS Color Classes */
+        .nps-score-option.nps-detractor {
+            background-color: #ef4444; /* Red for 0-6 */
+            color: white;
+            border-color: #ef4444;
+        }
+        .nps-score-option.nps-neutral {
+            background-color: #facc15; /* Yellow for 7-8 */
+            color: #333; /* Darker text for contrast */
+            border-color: #facc15;
+        }
+        .nps-score-option.nps-promoter {
+            background-color: #22c55e; /* Green for 9-10 */
+            color: white;
+            border-color: #22c55e;
+        }
+
+
         /* Consent Page Buttons */
         .consent-options {
             display: flex;
@@ -163,18 +181,19 @@
         /* Floating Elements Styling (Enhanced) */
         .floating-element {
             position: absolute;
-            opacity: 0.2; /* Softer opacity */
+            opacity: 0.6; /* Increased opacity for better visibility */
             font-size: 5rem; /* Larger size */
             animation: float 15s ease-in-out infinite; /* Slower, smoother animation */
-            filter: blur(2px); /* Soft blur effect */
+            filter: blur(1px); /* Slightly less blur */
             user-select: none; /* Prevent selection */
             pointer-events: none; /* Do not interfere with clicks */
         }
-        .floating-element:nth-child(1) { top: 15%; left: 8%; animation-delay: 0s; transform: rotate(10deg); }
-        .floating-element:nth-child(2) { top: 75%; left: 85%; animation-delay: 3s; animation-duration: 18s; transform: rotate(-15deg); }
-        .floating-element:nth-child(3) { top: 25%; left: 92%; animation-delay: 6s; animation-duration: 12s; transform: rotate(20deg); }
-        .floating-element:nth-child(4) { top: 88%; left: 12%; animation-delay: 9s; animation-duration: 16s; transform: rotate(-5deg); }
-        .floating-element:nth-child(5) { top: 45%; left: 48%; animation-delay: 1.5s; animation-duration: 14s; transform: rotate(25deg); }
+        .floating-element:nth-child(1) { top: 15%; left: 8%; animation-delay: 0s; transform: rotate(10deg); color: #FFD700; } /* Gold star */
+        .floating-element:nth-child(2) { top: 75%; left: 85%; animation-delay: 3s; animation-duration: 18s; transform: rotate(-15deg); color: #4B0082; } /* Indigo brain */
+        .floating-element:nth-child(3) { top: 25%; left: 92%; animation-delay: 6s; animation-duration: 12s; transform: rotate(20deg); color: #00BFFF; } /* Deep sky blue trophy */
+        .floating-element:nth-child(4) { top: 88%; left: 12%; animation-delay: 9s; animation-duration: 16s; transform: rotate(-5deg); color: #32CD32; } /* Lime green thumbs up */
+        .floating-element:nth-child(5) { top: 45%; left: 48%; animation-delay: 1.5s; animation-duration: 14s; transform: rotate(25deg); color: #8A2BE2; } /* Blue violet graduation cap */
+
 
         @keyframes float {
             0% { transform: translate(0, 0) rotate(var(--initial-rotation, 0deg)); }
@@ -320,10 +339,60 @@
             font-size: 3.5rem; /* Larger NPS score display */
             margin-top: 1rem;
         }
+
+        /* Floating action buttons container */
+        .floating-action-buttons-container {
+            position: fixed; /* Fixed position relative to the viewport */
+            bottom: 1.5rem; /* 1.5rem from the bottom */
+            right: 1.5rem; /* 1.5rem from the right */
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Space between buttons */
+            z-index: 100; /* Ensure it's on top of most content */
+        }
+
+        .floating-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 3.5rem; /* Fixed width for a circle */
+            height: 3.5rem; /* Fixed height for a circle */
+            border-radius: 50%; /* Make it round */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow */
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            text-decoration: none; /* Remove underline for links */
+            color: white; /* Default text color */
+            font-size: 1.5rem; /* Adjust icon size */
+        }
+
+        .floating-button.whatsapp {
+            background-color: #25d366; /* WhatsApp green */
+        }
+
+        .floating-button.whatsapp:hover {
+            background-color: #1da851; /* Darker green on hover */
+            transform: scale(1.1);
+        }
+
+        .floating-button.admin {
+            background-color: #6b7280; /* Gray for settings/admin */
+        }
+
+        .floating-button.admin:hover {
+            background-color: #4b5563; /* Darker gray on hover */
+            transform: scale(1.1);
+        }
+
+        .floating-button svg {
+            fill: currentColor; /* Use button's text color for SVG fill */
+            width: 1.5rem;
+            height: 1.5rem;
+        }
     </style>
 </head>
 <body>
-    <!-- Elementos flutuantes (ícones genéricos para aprimorar o visual) -->
+    <!-- Floating elements (generic icons to enhance visual appeal) -->
     <div class="floating-element" style="--initial-rotation: 10deg;">⭐</div>
     <div class="floating-element" style="--initial-rotation: -15deg;">🧠</div>
     <div class="floating-element" style="--initial-rotation: 20deg;">🏆</div>
@@ -331,17 +400,17 @@
     <div class="floating-element" style="--initial-rotation: 25deg;">🎓</div>
 
     <div class="container">
-        <!-- Página Inicial (Avaliação 0-10) -->
+        <!-- Initial Page (0-10 Rating) -->
         <div id="initialPage">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Avalie sua Experiência!</h1>
             <p class="text-lg text-gray-600 mb-10">De 0 a 10, qual a probabilidade de você recomendar este treinamento/palestra a um colega?</p>
 
             <div id="npsScaleContainer" class="nps-scale">
-                <!-- Números de 0 a 10 serão gerados aqui por JavaScript -->
+                <!-- Numbers from 0 to 10 will be generated here by JavaScript -->
             </div>
         </div>
 
-        <!-- Página de Consentimento para Colaborar Mais (inicialmente escondida) -->
+        <!-- Consent Page for More Collaboration (initially hidden) -->
         <div id="consentPage" style="display: none;">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Gostaria de Colaborar Mais?</h1>
             <p class="text-lg text-gray-600 mb-10">Sua opinião detalhada nos ajuda a aprimorar nossos conteúdos.</p>
@@ -351,7 +420,7 @@
             </div>
         </div>
 
-        <!-- Página de Detalhes da Pesquisa (inicialmente escondida) -->
+        <!-- Survey Details Page (initially hidden) -->
         <div id="detailSurveyPage" style="display: none;">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Detalhes da Sua Percepção</h1>
             <p class="text-lg text-gray-600 mb-10">Conte-nos mais para nos ajudar a melhorar o treinamento/palestra.</p>
@@ -446,15 +515,15 @@
                     </button>
                 </div>
                 <div id="motivatorOptionsContainer" class="radio-group">
-                    <!-- Opções serão carregadas aqui via JavaScript -->
+                    <!-- Options will be loaded here via JavaScript -->
                 </div>
             </div>
 
-            <!-- Seção de Edição de Motivadores (inicialmente escondida) -->
+            <!-- Motivator Edit Section (initially hidden) -->
             <div id="editMotivatorsSection" class="edit-section hidden">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Editar Opções de Motivadores</h3>
                 <div id="currentMotivatorOptions" class="mb-4">
-                    <!-- Opções atuais para edição -->
+                    <!-- Current options for editing -->
                 </div>
                 <div class="flex gap-2 mb-4">
                     <input type="text" id="newMotivatorInput" class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Adicionar nova opção">
@@ -478,7 +547,7 @@
             </button>
         </div>
 
-        <!-- Página de Login do Admin (mantida) -->
+        <!-- Admin Login Page (maintained) -->
         <div id="adminLoginPage" style="display: none;">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Acesso Administrativo</h1>
             <p class="text-lg text-gray-600 mb-10">Por favor, insira a senha para acessar o painel.</p>
@@ -491,12 +560,12 @@
             </button>
         </div>
 
-        <!-- Painel Admin (mantido com ajustes para os novos dados) -->
+        <!-- Admin Dashboard (maintained with adjustments for new data) -->
         <div id="adminDashboardPage" style="display: none;">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Resultados da Pesquisa de Treinamento</h1>
             <p class="text-lg text-gray-600 mb-10">Acompanhe as avaliações e feedbacks dos participantes.</p>
 
-            <!-- Net Promoter Score (NPS) Section for Admin (adaptado para a nova escala) -->
+            <!-- Net Promoter Score (NPS) Section for Admin (adapted for the new scale) -->
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-semibold text-gray-800">Net Promoter Score (NPS)</h2>
@@ -516,7 +585,7 @@
                 </div>
             </div>
 
-            <!-- Novos Gráficos (adaptados) -->
+            <!-- New Charts (adapted) -->
             <div class="chart-container">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Distribuição de Notas (0-10)</h3>
                 <div id="initialRatingChart"></div>
@@ -532,7 +601,7 @@
                 <div id="ageRangeChart"></div>
             </div>
 
-            <!-- Base de Feedbacks Section for Admin (adaptada) -->
+            <!-- Feedback Base Section for Admin (adapted) -->
             <div>
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Base de Feedbacks</h2>
                 <p class="text-gray-600 mb-4">Todos os feedbacks recebidos no período selecionado.</p>
@@ -552,7 +621,7 @@
                             </tr>
                         </thead>
                         <tbody id="surveyResultsBody">
-                            <!-- Dados da pesquisa serão carregados aqui -->
+                            <!-- Survey data will be loaded here -->
                             <tr><td colspan="8" class="text-center text-gray-500 py-4">Carregando dados...</td></tr>
                         </tbody>
                     </table>
@@ -564,7 +633,7 @@
         </div>
     </div>
 
-    <!-- Container para botões de ação flutuantes (mantidos) -->
+    <!-- Container for floating action buttons -->
     <div class="floating-action-buttons-container">
         <a id="whatsappBtn" href="https://wa.me/5581999513952" target="_blank" class="floating-button whatsapp">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -578,7 +647,7 @@
 
     <!-- Message Box for confirmation/error -->
     <div id="messageBox" class="message-box">
-        <!-- O conteúdo da mensagem será definido pelo JavaScript -->
+        <!-- Message content will be set by JavaScript -->
     </div>
 
     <script>
@@ -708,6 +777,16 @@
                         div.classList.add('nps-score-option');
                         div.dataset.value = i.toString(); // Store as string
                         div.textContent = i.toString(); // Display as string
+
+                        // Add color classes based on NPS range
+                        if (i >= 0 && i <= 6) {
+                            div.classList.add('nps-detractor');
+                        } else if (i >= 7 && i <= 8) {
+                            div.classList.add('nps-neutral');
+                        } else if (i >= 9 && i <= 10) {
+                            div.classList.add('nps-promoter');
+                        }
+
                         npsScaleContainer.appendChild(div);
                     }
                     // Re-assign npsScoreOptions after creation
@@ -716,11 +795,26 @@
                     // Attach event listeners to the newly created options
                     npsScoreOptions.forEach(option => {
                         option.addEventListener('click', () => {
-                            npsScoreOptions.forEach(opt => opt.classList.remove('selected'));
-                            option.classList.add('selected');
+                            // Remove all color classes from all options first, then re-apply based on the original value
+                            npsScoreOptions.forEach(opt => {
+                                opt.classList.remove('selected');
+                                const originalValue = parseInt(opt.dataset.value);
+                                opt.classList.remove('nps-detractor', 'nps-neutral', 'nps-promoter'); // Remove all color classes
+                                if (originalValue >= 0 && originalValue <= 6) {
+                                    opt.classList.add('nps-detractor');
+                                } else if (originalValue >= 7 && originalValue <= 8) {
+                                    opt.classList.add('nps-neutral');
+                                } else if (originalValue >= 9 && originalValue <= 10) {
+                                    opt.classList.add('nps-promoter');
+                                }
+                            });
+                            
+                            option.classList.add('selected'); // Add selected class to the clicked one
+                            // The color for the selected element will already be correct due to the re-application above
+                            
                             selectedNPSScore = parseInt(option.dataset.value);
 
-                            // Transiciona para a página de consentimento
+                            // Transition to the consent page
                             initialPage.style.display = 'none';
                             consentPage.style.display = 'block';
                             console.log('Nota selecionada:', selectedNPSScore);
@@ -784,7 +878,7 @@
                 adminNpsScoreDisplay.textContent = score; 
             }
 
-            // Função para renderizar gráficos de barra
+            // Function to render bar charts
             function renderBarChart(container, data, title) {
                 container.innerHTML = ''; 
                 const total = Object.values(data).reduce((sum, count) => sum + count, 0);
@@ -822,7 +916,7 @@
 
             function loadSurveyData(period = 'all') {
                 if (!isAuthReady) {
-                    console.log("Autenticação não pronta, tentando novamente em breve...");
+                    console.log("Authentication not ready, retrying soon...");
                     setTimeout(() => loadSurveyData(period), 500);
                     return;
                 }
@@ -944,14 +1038,14 @@
                         // renderBarChart(percepcaoGeralChartContainer, percepcaoGeralCounts, 'Percepção Geral');
 
                     }, (error) => {
-                        console.error("Erro ao carregar dados do Firestore:", error);
-                        surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Erro ao carregar dados.</td></tr>';
-                        showMessage('Erro ao carregar dados do painel de administração.', true);
+                        console.error("Error loading Firestore data:", error);
+                        surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Error loading data.</td></tr>';
+                        showMessage('Error loading data for the admin panel.', true);
                     });
                 } catch (error) {
-                    console.error("Erro ao configurar listener do Firestore:", error);
-                    surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Erro ao iniciar o carregamento de dados.</td></tr>';
-                    showMessage('Erro ao iniciar o carregamento de dados do painel de administração.', true);
+                    console.error("Error setting up Firestore listener:", error);
+                    surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Error starting data load.</td></tr>';
+                    showMessage('Error starting data load for the admin panel.', true);
                 }
             }
 
@@ -988,16 +1082,16 @@
                 try {
                     if (isAuthReady) {
                         await addDoc(collection(db, `/artifacts/${appId}/public/data/surveyResponses`), surveyData);
-                        console.log('Dados básicos da Pesquisa salvos no Firestore:', surveyData);
-                        showMessage('Sua avaliação foi enviada. Obrigado!');
+                        console.log('Basic survey data saved to Firestore:', surveyData);
+                        showMessage('Your rating has been submitted. Thank you!');
                     } else {
-                        showMessage('Erro: Autenticação não pronta. Tente novamente.', true);
-                        console.error('Erro: Autenticação Firebase não pronta.');
+                        showMessage('Error: Authentication not ready. Please try again.', true);
+                        console.error('Error: Firebase authentication not ready.');
                         return;
                     }
                 } catch (e) {
-                    console.error("Erro ao adicionar documento: ", e);
-                    showMessage('Erro ao enviar avaliação. Tente novamente.', true);
+                    console.error("Error adding document: ", e);
+                    showMessage('Error submitting rating. Please try again.', true);
                     return;
                 }
 
@@ -1042,16 +1136,16 @@
                     renderMotivatorOptions();
                     localStorage.setItem('motivatorOptions', JSON.stringify(motivatorOptions));
                 } else if (newValue && motivatorOptions.includes(newValue)) {
-                    showMessage('Esta opção já existe.', true);
+                    showMessage('This option already exists.', true);
                 } else {
-                    showMessage('Por favor, digite uma opção válida.', true);
+                    showMessage('Please enter a valid option.', true);
                 }
             });
 
             // Logic to save edits (hides the edit section)
             saveMotivatorsBtn.addEventListener('click', () => {
                 editMotivatorsSection.classList.add('hidden');
-                showMessage('Opções de motivadores salvas!', false);
+                showMessage('Motivator options saved!', false);
             });
 
             // Add click listener to the 'Concluir Pesquisa Detalhada' button
@@ -1063,7 +1157,7 @@
                 const comments = commentsTextArea.value.trim();
 
                 if (!expectativasAtendidas || !percepcaoGeral || !pontoMotivador || !ageRange) { 
-                    showMessage('Por favor, preencha todos os campos obrigatórios antes de enviar.', true);
+                    showMessage('Please fill in all required fields before submitting.', true);
                     return;
                 }
 
@@ -1081,16 +1175,16 @@
                 try {
                     if (isAuthReady) {
                         await addDoc(collection(db, `/artifacts/${appId}/public/data/surveyResponses`), surveyData);
-                        console.log('Dados da Pesquisa detalhada salvos no Firestore:', surveyData);
-                        showMessage('Avaliação detalhada enviada com sucesso!');
+                        console.log('Detailed survey data saved to Firestore:', surveyData);
+                        showMessage('Detailed survey submitted successfully!');
                     } else {
-                        showMessage('Erro: Autenticação não pronta. Tente novamente.', true);
-                        console.error('Erro: Autenticação Firebase não pronta.');
+                        showMessage('Error: Authentication not ready. Please try again.', true);
+                        console.error('Error: Firebase authentication not ready.');
                         return;
                     }
                 } catch (e) {
-                    console.error("Erro ao adicionar documento: ", e);
-                    showMessage('Erro ao enviar avaliação. Tente novamente.', true);
+                    console.error("Error adding document: ", e);
+                    showMessage('Error submitting rating. Please try again.', true);
                     return;
                 }
 
@@ -1118,7 +1212,7 @@
                     adminDashboardPage.style.display = 'block';
                     loadSurveyData(npsPeriodSelect.value);
                 } else {
-                    showMessage('Senha incorreta. Tente novamente.', true);
+                    showMessage('Incorrect password. Please try again.', true);
                     adminPasswordInput.value = '';
                 }
             });
