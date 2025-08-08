@@ -145,6 +145,30 @@
             border-color: #22c55e;
         }
 
+        /* Media queries for NPS score options responsiveness */
+        @media (max-width: 640px) { /* Tailwind's 'sm' breakpoint */
+            .nps-score-option {
+                width: 16vw; /* More fluid relative to viewport width */
+                height: 16vw;
+                font-size: 1.5rem; /* Smaller font on small screens */
+                border-radius: 0.6rem;
+            }
+            .nps-scale {
+                gap: 0.5rem; /* Reduce gap on smaller screens */
+            }
+        }
+        @media (max-width: 480px) { /* Even smaller screens */
+            .nps-score-option {
+                width: 18vw; /* Even smaller */
+                height: 18vw;
+                font-size: 1.3rem;
+                border-radius: 0.5rem; /* Slightly less rounded */
+            }
+            .nps-scale {
+                gap: 0.4rem; /* Further reduce gap */
+            }
+        }
+
 
         /* Consent Page Buttons */
         .consent-options {
@@ -719,12 +743,24 @@
 
             // --- Firebase Authentication ---
             console.log("Iniciando autenticação Firebase...");
+            // Authentication setup - runs once to get current user ID
             if (initialAuthToken) {
-                await signInWithCustomToken(auth, initialAuthToken);
-                console.log("Autenticado com token personalizado.");
+                signInWithCustomToken(auth, initialAuthToken).then(() => {
+                    console.log("Autenticado com token personalizado.");
+                }).catch(error => {
+                    console.error("Erro na autenticação com token personalizado:", error);
+                    signInAnonymously(auth).then(() => {
+                        console.log("Tentando autenticar anonimamente após falha de token.");
+                    }).catch(anonError => {
+                        console.error("Erro na autenticação anônima:", anonError);
+                    });
+                });
             } else {
-                await signInAnonymously(auth);
-                console.log("Autenticado anonimamente.");
+                signInAnonymously(auth).then(() => {
+                    console.log("Autenticado anonimamente.");
+                }).catch(error => {
+                    console.error("Erro na autenticação anônima:", error);
+                });
             }
 
             onAuthStateChanged(auth, (user) => {
@@ -737,10 +773,9 @@
                 }
                 isAuthReady = true;
                 console.log("isAuthReady definido como:", isAuthReady);
-                // Call initial page setup functions after auth is ready
-                createNPSScoreOptions(); 
-                resetToInitialPage();
-                renderMotivatorOptions();
+                // No need to call createNPSScoreOptions() or resetToInitialPage() here again,
+                // as they are called on DOMContentLoaded for immediate display.
+                // loadSurveyData will be called when admin dashboard is accessed.
             });
 
             // --- Utility Functions ---
@@ -898,6 +933,12 @@
 
             function updateNPSGauge(score) {
                 console.log("Atualizando medidor NPS com score:", score);
+                // NPS is typically from -100 to +100. Our 0-10 scale maps to this.
+                // 0-6 Detractors, 7-8 Neutrals, 9-10 Promoters
+                // Convert to a -100 to +100 scale for the gauge display
+                // If 10 is max (Promoter), 0 is min (Detractor)
+                // This means score 5 is 50% on gauge (orange center)
+                // So, (score / 10) * 100 will give position
                 const gaugePosition = (score / 10) * 100;
 
                 adminNpsPointer.style.left = `${gaugePosition}%`;
@@ -1080,6 +1121,11 @@
                 }
             }
 
+
+            // --- Initial Setup (executed once DOM is loaded) ---
+            createNPSScoreOptions(); // Ensures NPS numbers are visible immediately
+            resetToInitialPage(); // Sets initial page visibility
+            renderMotivatorOptions(); // Renders motivator options
 
             // --- Event Listeners ---
             consentYesBtn.addEventListener('click', () => {
