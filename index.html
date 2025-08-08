@@ -795,14 +795,24 @@
                 }, 3000);
             }
 
+            // Function to show a specific page and hide all others
+            function showPage(pageToShow) {
+                console.log("Chamando showPage para:", pageToShow.id);
+                const pages = [initialPage, consentPage, detailSurveyPage, adminLoginPage, adminDashboardPage];
+                pages.forEach(page => {
+                    if (page === pageToShow) {
+                        page.style.display = 'block';
+                    } else {
+                        page.style.display = 'none';
+                    }
+                });
+            }
+
             // Function to reset all pages to hidden and show the initial page
             function resetToInitialPage() {
-                console.log("Redefinindo para a página inicial.");
-                initialPage.style.display = 'block';
-                consentPage.style.display = 'none';
-                detailSurveyPage.style.display = 'none';
-                adminLoginPage.style.display = 'none';
-                adminDashboardPage.style.display = 'none';
+                console.log("Redefinindo para a página inicial e limpando formulário.");
+                showPage(initialPage); // Use the new function
+                
                 if (npsScoreOptions) { // Check if npsScoreOptions is defined before iterating
                     npsScoreOptions.forEach(opt => {
                         opt.classList.remove('selected'); 
@@ -848,6 +858,7 @@
                         }
 
                         npsScaleContainer.appendChild(div);
+                        console.log(`Adicionado botão NPS: ${i}`);
                     }
                     // Re-assign npsScoreOptions after creation
                     npsScoreOptions = document.querySelectorAll('.nps-score-option');
@@ -877,8 +888,7 @@
                             selectedNPSScore = parseInt(option.dataset.value);
 
                             // Transition to the consent page
-                            initialPage.style.display = 'none';
-                            consentPage.style.display = 'block';
+                            showPage(consentPage); // Use the new function
                             console.log('Nota selecionada:', selectedNPSScore);
                         });
                     });
@@ -1124,14 +1134,13 @@
 
             // --- Initial Setup (executed once DOM is loaded) ---
             createNPSScoreOptions(); // Ensures NPS numbers are visible immediately
-            resetToInitialPage(); // Sets initial page visibility
+            resetToInitialPage();   // Sets initial page visibility
             renderMotivatorOptions(); // Renders motivator options
 
             // --- Event Listeners ---
             consentYesBtn.addEventListener('click', () => {
                 console.log("Botão 'Sim' de consentimento clicado.");
-                consentPage.style.display = 'none';
-                detailSurveyPage.style.display = 'block';
+                showPage(detailSurveyPage); // Use the new function
             });
 
             consentNoBtn.addEventListener('click', async () => {
@@ -1174,23 +1183,18 @@
             // Add click listener to the floating 'Acessar Painel Admin' button
             goToAdminBtnFloating.addEventListener('click', () => {
                 console.log("Botão 'Acessar Painel Admin' clicado.");
-                initialPage.style.display = 'none';
-                consentPage.style.display = 'none'; 
-                detailSurveyPage.style.display = 'none';
-                adminLoginPage.style.display = 'block';
+                showPage(adminLoginPage); // Use the new function
                 adminPasswordInput.value = '';
             });
 
             backToInitialFromAdminLogin.addEventListener('click', () => {
                 console.log("Botão 'Voltar' do login admin clicado.");
-                adminLoginPage.style.display = 'none';
-                initialPage.style.display = 'block';
+                showPage(initialPage); // Use the new function
             });
 
             backToInitialFromAdminDashboard.addEventListener('click', () => {
                 console.log("Botão 'Voltar' do painel admin clicado.");
-                adminDashboardPage.style.display = 'none';
-                initialPage.style.display = 'block';
+                showPage(initialPage); // Use the new function
             });
 
             // Logic for the "Editar Opções" button
@@ -1288,8 +1292,7 @@
 
                 if (password === correctPassword) {
                     console.log("Senha correta. Acessando painel admin.");
-                    adminLoginPage.style.display = 'none';
-                    adminDashboardPage.style.display = 'block';
+                    showPage(adminDashboardPage); // Use the new function
                     loadSurveyData(npsPeriodSelect.value);
                 } else {
                     console.log("Senha incorreta.");
