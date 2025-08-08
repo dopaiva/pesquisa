@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisa de Satisfação para Treinamento/Palestra</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Incluindo Tailwind CSS para estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
@@ -23,7 +23,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Export Firebase instances to be accessible in the main script
+        // Export Firebase instances and functions to be accessible in the main script
         window.firebaseApp = app;
         window.firebaseDb = db;
         window.firebaseAuth = auth;
@@ -236,17 +236,89 @@
         }
 
         /* Admin Dashboard Styling */
+        #adminDashboardPage {
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack children vertically */
+            gap: 2.5rem; /* Increased gap between sections for better visual separation */
+            padding: 2rem; /* Add padding to the whole dashboard page */
+        }
+
+        .admin-data-table {
+            width: 100%;
+            border-collapse: collapse; /* Changed to collapse for better consistency */
+            margin-top: 1.5rem;
+            border-radius: 0.75rem; /* Rounded corners for the table itself */
+            overflow: hidden; /* Ensures rounded corners are visible */
+        }
+        .admin-data-table th, .admin-data-table td {
+            border: 1px solid #e5e7eb;
+            padding: 1rem; /* Increased padding for better readability */
+            text-align: left;
+            font-size: 0.95rem; /* Slightly larger font */
+        }
         .admin-data-table th {
             background-color: #e2e8f0; /* Lighter header for table */
             color: #333;
+            font-weight: 700;
         }
         .admin-data-table tbody tr:hover {
             background-color: #f0f4f8; /* Hover effect for table rows */
         }
+        /* No need for specific rounded corner styles for cells when border-collapse is collapse */
+
 
         /* Chart Bar Styling */
+        .chart-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .chart-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .chart-bar-label {
+            width: 120px;
+            font-size: 0.875rem;
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+        .chart-bar-bg {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
         .chart-bar-fill {
+            height: 100%;
             background-color: #4c51bf; /* Deeper blue for charts */
+            border-radius: 0.25rem;
+            transition: width 0.5s ease-out;
+        }
+        .chart-bar-value {
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        /* Adjustments for NPS Gauge */
+        .nps-gauge-container {
+            padding: 1.5rem; /* Add padding to gauge container */
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 2rem; /* Add space below the gauge */
+        }
+        .nps-score-display {
+            font-size: 3.5rem; /* Larger NPS score display */
+            margin-top: 1rem;
         }
     </style>
 </head>
@@ -264,13 +336,8 @@
             <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Avalie sua Experiência!</h1>
             <p class="text-lg text-gray-600 mb-10">De 0 a 10, qual a probabilidade de você recomendar este treinamento/palestra a um colega?</p>
 
-            <div class="nps-scale">
-                <!-- Números de 0 a 10 -->
-                {[...Array(11).keys()].map(number => (
-                    <div key={number} class="nps-score-option" data-value={number}>
-                        {number}
-                    </div>
-                ))}
+            <div id="npsScaleContainer" class="nps-scale">
+                <!-- Números de 0 a 10 serão gerados aqui por JavaScript -->
             </div>
         </div>
 
@@ -360,7 +427,7 @@
                         45-54
                     </label>
                     <label class="radio-option">
-                        <input type="radio" name="55-64" value="55-64" class="form-radio">
+                        <input type="radio" name="ageRange" value="55-64" class="form-radio">
                         55-64
                     </label>
                     <label class="radio-option">
@@ -517,19 +584,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Firebase instances from global window object
-            const app = window.firebaseApp;
-            const db = window.firebaseDb;
-            const auth = window.firebaseAuth;
-            const initialAuthToken = window.firebaseInitialAuthToken;
-            const appId = window.firebaseAppId;
-            const signInAnonymously = window.signInAnonymously;
-            const onAuthStateChanged = window.onAuthStateChanged;
-            const addDoc = window.addDoc;
-            const collection = window.collection;
-            const onSnapshot = window.onSnapshot;
-            const query = window.query;
-            const where = window.where;
-            const signInWithCustomToken = window.signInWithCustomToken;
+            const app = window.firebaseApp; 
+            const db = window.firebaseDb;   
+            const auth = window.firebaseAuth; 
+            const initialAuthToken = window.firebaseInitialAuthToken; 
+            const appId = window.firebaseAppId; 
+            const signInAnonymously = window.signInAnonymously; 
+            const onAuthStateChanged = window.onAuthStateChanged; 
+            const addDoc = window.addDoc; 
+            const collection = window.collection; 
+            const onSnapshot = window.onSnapshot; 
+            const query = window.query; 
+            const where = window.where; 
+            const signInWithCustomToken = window.signInWithCustomToken; 
+
 
             // UI Elements
             const initialPage = document.getElementById('initialPage');
@@ -538,7 +606,10 @@
             const adminLoginPage = document.getElementById('adminLoginPage');
             const adminDashboardPage = document.getElementById('adminDashboardPage');
 
-            const npsScoreOptions = document.querySelectorAll('.nps-score-option'); 
+            // Changed to let so it can be re-assigned after dynamic creation
+            let npsScoreOptions; 
+            const npsScaleContainer = document.getElementById('npsScaleContainer'); // New reference for the container
+
             const consentYesBtn = document.getElementById('consentYesBtn');
             const consentNoBtn = document.getElementById('consentNoBtn');
             const goToAdminBtnFloating = document.getElementById('goToAdminBtnFloating');
@@ -616,7 +687,9 @@
                 detailSurveyPage.style.display = 'none';
                 adminLoginPage.style.display = 'none';
                 adminDashboardPage.style.display = 'none';
-                npsScoreOptions.forEach(opt => opt.classList.remove('selected')); 
+                if (npsScoreOptions) { // Check if npsScoreOptions is defined before iterating
+                    npsScoreOptions.forEach(opt => opt.classList.remove('selected')); 
+                }
                 selectedNPSScore = null; 
                 // Reset form fields on detail page as well
                 document.querySelectorAll('input[name="expectativasAtendidas"]').forEach(radio => radio.checked = false);
@@ -625,6 +698,37 @@
                 document.querySelectorAll('input[name="ageRange"]').forEach(radio => radio.checked = false); 
                 commentsTextArea.value = '';
             }
+
+            // Function to dynamically create NPS score options
+            function createNPSScoreOptions() {
+                if (npsScaleContainer) {
+                    npsScaleContainer.innerHTML = ''; // Clear existing content
+                    for (let i = 0; i <= 10; i++) {
+                        const div = document.createElement('div');
+                        div.classList.add('nps-score-option');
+                        div.dataset.value = i.toString(); // Store as string
+                        div.textContent = i.toString(); // Display as string
+                        npsScaleContainer.appendChild(div);
+                    }
+                    // Re-assign npsScoreOptions after creation
+                    npsScoreOptions = document.querySelectorAll('.nps-score-option');
+
+                    // Attach event listeners to the newly created options
+                    npsScoreOptions.forEach(option => {
+                        option.addEventListener('click', () => {
+                            npsScoreOptions.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                            selectedNPSScore = parseInt(option.dataset.value);
+
+                            // Transiciona para a página de consentimento
+                            initialPage.style.display = 'none';
+                            consentPage.style.display = 'block';
+                            console.log('Nota selecionada:', selectedNPSScore);
+                        });
+                    });
+                }
+            }
+
 
             function renderMotivatorOptions() {
                 motivatorOptionsContainer.innerHTML = '';
@@ -853,22 +957,14 @@
 
 
             // --- Initial Setup ---
+            createNPSScoreOptions(); // Call this function to create the number options
             resetToInitialPage();
             renderMotivatorOptions();
 
             // --- Event Listeners ---
-            npsScoreOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    npsScoreOptions.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    selectedNPSScore = parseInt(option.dataset.value);
-
-                    // Transiciona para a página de consentimento
-                    initialPage.style.display = 'none';
-                    consentPage.style.display = 'block';
-                    console.log('Nota selecionada:', selectedNPSScore);
-                });
-            });
+            // Note: npsScoreOptions is now re-assigned inside createNPSScoreOptions,
+            // so this listener setup must happen after that function call or inside it.
+            // I've moved the listener attachment into createNPSScoreOptions for clarity.
 
             consentYesBtn.addEventListener('click', () => {
                 consentPage.style.display = 'none';
