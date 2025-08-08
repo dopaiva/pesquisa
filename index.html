@@ -652,6 +652,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log("DOM totalmente carregado. Iniciando script.");
+
             // Firebase instances from global window object
             const app = window.firebaseApp; 
             const db = window.firebaseDb;   
@@ -716,10 +718,13 @@
             let isAuthReady = false;
 
             // --- Firebase Authentication ---
+            console.log("Iniciando autenticação Firebase...");
             if (initialAuthToken) {
                 await signInWithCustomToken(auth, initialAuthToken);
+                console.log("Autenticado com token personalizado.");
             } else {
                 await signInAnonymously(auth);
+                console.log("Autenticado anonimamente.");
             }
 
             onAuthStateChanged(auth, (user) => {
@@ -731,10 +736,16 @@
                     currentUserId = crypto.randomUUID(); // Fallback for unauthenticated
                 }
                 isAuthReady = true;
+                console.log("isAuthReady definido como:", isAuthReady);
+                // Call initial page setup functions after auth is ready
+                createNPSScoreOptions(); 
+                resetToInitialPage();
+                renderMotivatorOptions();
             });
 
             // --- Utility Functions ---
             function showMessage(message, isError = false) {
+                console.log("Exibindo mensagem:", message, "É erro?", isError);
                 messageBox.textContent = message;
                 messageBox.classList.remove('bg-green-500', 'bg-red-500');
                 if (isError) {
@@ -751,13 +762,26 @@
 
             // Function to reset all pages to hidden and show the initial page
             function resetToInitialPage() {
+                console.log("Redefinindo para a página inicial.");
                 initialPage.style.display = 'block';
                 consentPage.style.display = 'none';
                 detailSurveyPage.style.display = 'none';
                 adminLoginPage.style.display = 'none';
                 adminDashboardPage.style.display = 'none';
                 if (npsScoreOptions) { // Check if npsScoreOptions is defined before iterating
-                    npsScoreOptions.forEach(opt => opt.classList.remove('selected')); 
+                    npsScoreOptions.forEach(opt => {
+                        opt.classList.remove('selected'); 
+                        // Re-apply original colors after deselection
+                        const originalValue = parseInt(opt.dataset.value);
+                        opt.classList.remove('nps-detractor', 'nps-neutral', 'nps-promoter'); // Ensure no lingering classes
+                        if (originalValue >= 0 && originalValue <= 6) {
+                            opt.classList.add('nps-detractor');
+                        } else if (originalValue >= 7 && originalValue <= 8) {
+                            opt.classList.add('nps-neutral');
+                        } else if (originalValue >= 9 && originalValue <= 10) {
+                            opt.classList.add('nps-promoter');
+                        }
+                    }); 
                 }
                 selectedNPSScore = null; 
                 // Reset form fields on detail page as well
@@ -770,6 +794,7 @@
 
             // Function to dynamically create NPS score options
             function createNPSScoreOptions() {
+                console.log("Chamando createNPSScoreOptions.");
                 if (npsScaleContainer) {
                     npsScaleContainer.innerHTML = ''; // Clear existing content
                     for (let i = 0; i <= 10; i++) {
@@ -791,10 +816,12 @@
                     }
                     // Re-assign npsScoreOptions after creation
                     npsScoreOptions = document.querySelectorAll('.nps-score-option');
+                    console.log("Botões NPS criados e event listeners anexados.");
 
                     // Attach event listeners to the newly created options
                     npsScoreOptions.forEach(option => {
                         option.addEventListener('click', () => {
+                            console.log("Botão NPS clicado:", option.dataset.value);
                             // Remove all color classes from all options first, then re-apply based on the original value
                             npsScoreOptions.forEach(opt => {
                                 opt.classList.remove('selected');
@@ -820,11 +847,14 @@
                             console.log('Nota selecionada:', selectedNPSScore);
                         });
                     });
+                } else {
+                    console.error("npsScaleContainer não encontrado!");
                 }
             }
 
 
             function renderMotivatorOptions() {
+                console.log("Renderizando opções de motivadores.");
                 motivatorOptionsContainer.innerHTML = '';
                 motivatorOptions.forEach(option => {
                     const label = document.createElement('label');
@@ -838,6 +868,7 @@
             }
 
             function renderEditMotivatorOptions() {
+                console.log("Renderizando opções de motivadores para edição.");
                 currentMotivatorOptionsDiv.innerHTML = '';
                 if (motivatorOptions.length === 0) {
                     currentMotivatorOptionsDiv.innerHTML = '<p class="text-gray-500">Nenhuma opção adicionada ainda.</p>';
@@ -855,6 +886,7 @@
 
                 document.querySelectorAll('.remove-motivator-btn').forEach(button => {
                     button.addEventListener('click', (event) => {
+                        console.log("Remover motivador clicado.");
                         const index = parseInt(event.target.dataset.index);
                         motivatorOptions.splice(index, 1);
                         renderEditMotivatorOptions();
@@ -865,12 +897,7 @@
             }
 
             function updateNPSGauge(score) {
-                // NPS is typically from -100 to +100. Our 0-10 scale maps to this.
-                // 0-6 Detractors, 7-8 Neutrals, 9-10 Promoters
-                // Convert to a -100 to +100 scale for the gauge display
-                // If 10 is max (Promoter), 0 is min (Detractor)
-                // This means score 5 is 50% on gauge (orange center)
-                // So, (score / 10) * 100 will give position
+                console.log("Atualizando medidor NPS com score:", score);
                 const gaugePosition = (score / 10) * 100;
 
                 adminNpsPointer.style.left = `${gaugePosition}%`;
@@ -880,6 +907,7 @@
 
             // Function to render bar charts
             function renderBarChart(container, data, title) {
+                console.log("Renderizando gráfico de barras para:", title, "com dados:", data);
                 container.innerHTML = ''; 
                 const total = Object.values(data).reduce((sum, count) => sum + count, 0);
 
@@ -915,8 +943,9 @@
 
 
             function loadSurveyData(period = 'all') {
+                console.log("Carregando dados da pesquisa para o período:", period);
                 if (!isAuthReady) {
-                    console.log("Authentication not ready, retrying soon...");
+                    console.log("Autenticação não pronta, tentando novamente em breve...");
                     setTimeout(() => loadSurveyData(period), 500);
                     return;
                 }
@@ -936,6 +965,7 @@
                     }
 
                     onSnapshot(q, (snapshot) => {
+                        console.log("Dados do Firestore recebidos.");
                         surveyResultsBody.innerHTML = '';
                         const feedbacks = [];
                         let promoters = 0; 
@@ -951,6 +981,7 @@
 
 
                         if (snapshot.empty) {
+                            console.log("Nenhum dado de pesquisa encontrado para o período selecionado.");
                             surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-4">Nenhum dado de pesquisa encontrado.</td></tr>';
                             updateNPSGauge(0);
                             renderBarChart(initialRatingChartContainer, {}, 'Notas (0-10)');
@@ -1038,34 +1069,27 @@
                         // renderBarChart(percepcaoGeralChartContainer, percepcaoGeralCounts, 'Percepção Geral');
 
                     }, (error) => {
-                        console.error("Error loading Firestore data:", error);
-                        surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Error loading data.</td></tr>';
-                        showMessage('Error loading data for the admin panel.', true);
+                        console.error("Erro ao carregar dados do Firestore:", error);
+                        surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Erro ao carregar dados.</td></tr>';
+                        showMessage('Erro ao carregar dados do painel de administração.', true);
                     });
                 } catch (error) {
-                    console.error("Error setting up Firestore listener:", error);
-                    surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Error starting data load.</td></tr>';
-                    showMessage('Error starting data load for the admin panel.', true);
+                    console.error("Erro ao configurar listener do Firestore:", error);
+                    surveyResultsBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Erro ao iniciar o carregamento de dados.</td></tr>';
+                    showMessage('Erro ao iniciar o carregamento de dados do painel de administração.', true);
                 }
             }
 
 
-            // --- Initial Setup ---
-            createNPSScoreOptions(); // Call this function to create the number options
-            resetToInitialPage();
-            renderMotivatorOptions();
-
             // --- Event Listeners ---
-            // Note: npsScoreOptions is now re-assigned inside createNPSScoreOptions,
-            // so this listener setup must happen after that function call or inside it.
-            // I've moved the listener attachment into createNPSScoreOptions for clarity.
-
             consentYesBtn.addEventListener('click', () => {
+                console.log("Botão 'Sim' de consentimento clicado.");
                 consentPage.style.display = 'none';
                 detailSurveyPage.style.display = 'block';
             });
 
             consentNoBtn.addEventListener('click', async () => {
+                console.log("Botão 'Não' de consentimento clicado.");
                 // If the user doesn't want to collaborate more, send only the score and reset
                 const surveyData = {
                     userId: currentUserId,
@@ -1082,16 +1106,16 @@
                 try {
                     if (isAuthReady) {
                         await addDoc(collection(db, `/artifacts/${appId}/public/data/surveyResponses`), surveyData);
-                        console.log('Basic survey data saved to Firestore:', surveyData);
-                        showMessage('Your rating has been submitted. Thank you!');
+                        console.log('Dados básicos da Pesquisa salvos no Firestore:', surveyData);
+                        showMessage('Sua avaliação foi enviada. Obrigado!');
                     } else {
-                        showMessage('Error: Authentication not ready. Please try again.', true);
-                        console.error('Error: Firebase authentication not ready.');
+                        showMessage('Erro: Autenticação não pronta. Tente novamente.', true);
+                        console.error('Erro: Autenticação Firebase não pronta.');
                         return;
                     }
                 } catch (e) {
-                    console.error("Error adding document: ", e);
-                    showMessage('Error submitting rating. Please try again.', true);
+                    console.error("Erro ao adicionar documento: ", e);
+                    showMessage('Erro ao enviar avaliação. Tente novamente.', true);
                     return;
                 }
 
@@ -1103,6 +1127,7 @@
 
             // Add click listener to the floating 'Acessar Painel Admin' button
             goToAdminBtnFloating.addEventListener('click', () => {
+                console.log("Botão 'Acessar Painel Admin' clicado.");
                 initialPage.style.display = 'none';
                 consentPage.style.display = 'none'; 
                 detailSurveyPage.style.display = 'none';
@@ -1111,23 +1136,27 @@
             });
 
             backToInitialFromAdminLogin.addEventListener('click', () => {
+                console.log("Botão 'Voltar' do login admin clicado.");
                 adminLoginPage.style.display = 'none';
                 initialPage.style.display = 'block';
             });
 
             backToInitialFromAdminDashboard.addEventListener('click', () => {
+                console.log("Botão 'Voltar' do painel admin clicado.");
                 adminDashboardPage.style.display = 'none';
                 initialPage.style.display = 'block';
             });
 
             // Logic for the "Editar Opções" button
             editMotivatorsBtn.addEventListener('click', () => {
+                console.log("Botão 'Editar Opções' clicado.");
                 editMotivatorsSection.classList.toggle('hidden');
                 renderEditMotivatorOptions();
             });
 
             // Logic to add new motivator option
             addMotivatorBtn.addEventListener('click', () => {
+                console.log("Botão 'Adicionar' motivador clicado.");
                 const newValue = newMotivatorInput.value.trim();
                 if (newValue && !motivatorOptions.includes(newValue)) {
                     motivatorOptions.push(newValue);
@@ -1136,20 +1165,22 @@
                     renderMotivatorOptions();
                     localStorage.setItem('motivatorOptions', JSON.stringify(motivatorOptions));
                 } else if (newValue && motivatorOptions.includes(newValue)) {
-                    showMessage('This option already exists.', true);
+                    showMessage('Esta opção já existe.', true);
                 } else {
-                    showMessage('Please enter a valid option.', true);
+                    showMessage('Por favor, digite uma opção válida.', true);
                 }
             });
 
             // Logic to save edits (hides the edit section)
             saveMotivatorsBtn.addEventListener('click', () => {
+                console.log("Botão 'Salvar Edições' clicado.");
                 editMotivatorsSection.classList.add('hidden');
-                showMessage('Motivator options saved!', false);
+                showMessage('Opções de motivadores salvas!', false);
             });
 
             // Add click listener to the 'Concluir Pesquisa Detalhada' button
             submitDetailSurveyBtn.addEventListener('click', async () => {
+                console.log("Botão 'Concluir Pesquisa Detalhada' clicado.");
                 const expectativasAtendidas = document.querySelector('input[name="expectativasAtendidas"]:checked')?.value;
                 const percepcaoGeral = document.querySelector('input[name="percepcaoGeral"]:checked')?.value;
                 const pontoMotivador = document.querySelector('input[name="pontoMotivador"]:checked')?.value;
@@ -1157,7 +1188,8 @@
                 const comments = commentsTextArea.value.trim();
 
                 if (!expectativasAtendidas || !percepcaoGeral || !pontoMotivador || !ageRange) { 
-                    showMessage('Please fill in all required fields before submitting.', true);
+                    showMessage('Por favor, preencha todos os campos obrigatórios antes de enviar.', true);
+                    console.log("Campos obrigatórios faltando.");
                     return;
                 }
 
@@ -1175,16 +1207,16 @@
                 try {
                     if (isAuthReady) {
                         await addDoc(collection(db, `/artifacts/${appId}/public/data/surveyResponses`), surveyData);
-                        console.log('Detailed survey data saved to Firestore:', surveyData);
-                        showMessage('Detailed survey submitted successfully!');
+                        console.log('Dados da Pesquisa detalhada salvos no Firestore:', surveyData);
+                        showMessage('Avaliação detalhada enviada com sucesso!');
                     } else {
-                        showMessage('Error: Authentication not ready. Please try again.', true);
-                        console.error('Error: Firebase authentication not ready.');
+                        showMessage('Erro: Autenticação não pronta. Tente novamente.', true);
+                        console.error('Erro: Autenticação Firebase não pronta.');
                         return;
                     }
                 } catch (e) {
-                    console.error("Error adding document: ", e);
-                    showMessage('Error submitting rating. Please try again.', true);
+                    console.error("Erro ao adicionar documento: ", e);
+                    showMessage('Erro ao enviar avaliação. Tente novamente.', true);
                     return;
                 }
 
@@ -1204,21 +1236,25 @@
 
             // Admin login logic
             adminLoginBtn.addEventListener('click', () => {
+                console.log("Botão de login Admin clicado.");
                 const password = adminPasswordInput.value;
                 const correctPassword = "123";
 
                 if (password === correctPassword) {
+                    console.log("Senha correta. Acessando painel admin.");
                     adminLoginPage.style.display = 'none';
                     adminDashboardPage.style.display = 'block';
                     loadSurveyData(npsPeriodSelect.value);
                 } else {
-                    showMessage('Incorrect password. Please try again.', true);
+                    console.log("Senha incorreta.");
+                    showMessage('Senha incorreta. Tente novamente.', true);
                     adminPasswordInput.value = '';
                 }
             });
 
             // Listener for period filter in admin panel
             npsPeriodSelect.addEventListener('change', (event) => {
+                console.log("Período NPS alterado para:", event.target.value);
                 loadSurveyData(event.target.value);
             });
         });
